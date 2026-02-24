@@ -1,13 +1,34 @@
-from flask import render_template, request, redirect, url_for, flash, abort
+from flask import render_template, request, redirect, url_for, flash, abort, current_app, make_response
 from app.main import bp
 from app import db
 from app.models import User, Attendance, QRCode, Meeting, Region, AccessRequest
 from datetime import datetime
+import qrcode
+import io
 
 
 @bp.route('/')
 def index():
-    return render_template('index.html')
+    # when not authenticated show available events/meetings
+    from flask_login import current_user
+    open_meetings = []
+    if not current_user.is_authenticated:
+        today = datetime.utcnow().date()
+        now = datetime.utcnow()
+        # gather active qrcodes for meetings that are still open
+        for qr in QRCode.query.filter_by(active=True).all():
+            mt = qr.meeting
+            if mt.event.data_final < today:
+                continue
+            closed = False
+            if mt.data != today:
+                h = now.hour
+                m = now.minute
+                if not ((h >= 18 and h < 23) or (h == 23 and m <= 30)):
+                    closed = True
+            if not closed:
+                open_meetings.append((mt, qr))
+    return render_template('index.html', open_meetings=open_meetings)
 
 
 @bp.route('/scan/<token>', methods=['GET', 'POST'])
@@ -104,6 +125,20 @@ def register(token):
         return render_template('confirm.html', user=user, meeting=meeting, simple=True)
     return render_template('register.html', telefone=telefone, regions=regions, simple=True)
 
+
+
+@bp.route('/qrcode/image/<int:qrcode_id>')
+def public_qrcode_image(qrcode_id):
+    qr = QRCode.query.get_or_404(qrcode_id)
+    base = current_app.config.get('SERVER_ADDRESS')
+    url = f"{base}/scan/{qr.token}"
+    img = qrcode.make(url)
+    buf = io.BytesIO()
+    img.save(buf, format='PNG')
+    buf.seek(0)
+    resp = make_response(buf.read())
+    resp.headers.set('Content-Type', 'image/png')
+    return resp
 
 @bp.route('/request-access', methods=['GET','POST'])
 def request_access():

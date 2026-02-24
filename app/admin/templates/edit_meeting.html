@@ -6,6 +6,8 @@
 <div class="container-fluid">
 <h1 class="h4 mb-4">Editar Reunião</h1>
 <form method="post">
+    <p class="mb-3"><strong>Evento:</strong> {{ meeting.event.nome }}<br>
+       <strong>Período:</strong> {{ meeting.event.data_inicial.strftime('%d/%m/%Y') }} &ndash; {{ meeting.event.data_final.strftime('%d/%m/%Y') }}</p>
     <div>
         <label>Título:<br>
             <input type="text" name="titulo" value="{{ meeting.titulo }}" class="form-control" required>
@@ -13,7 +15,8 @@
     </div>
     <div>
         <label>Data da reunião:<br>
-            <input type="date" name="data" value="{{ meeting.data }}" class="form-control">
+            <input type="date" name="data" value="{{ meeting.data }}" class="form-control" required
+                   min="{{ meeting.event.data_inicial }}" max="{{ meeting.event.data_final }}">
         </label>
     </div>
     <div class="form-check">

@@ -15,19 +15,28 @@
         </tr>
     </thead>
     <tbody>
+    {% set anyrow = false %}
     {% for att in meeting.attendances %}
-        <tr>
-            <td>{{ att.user.telefone }}</td>
-            <td><a href="{{ url_for('admin.edit_user', user_id=att.user.id) }}">{{ att.user.nome }}</a></td>
-            <td>{{ att.user.cor }}</td>
-            <td>{{ att.confirmado_em|datetime('%d/%m %H:%M') }}</td>
-            <td>
-                <form method="post" action="{{ url_for('admin.delete_attendance', att_id=att.id) }}" style="display:inline" onsubmit="return confirm('Remover registro de presença?');">
-                    <button class="btn btn-danger btn-sm">🗑️</button>
-                </form>
-            </td>
-        </tr>
-    {% else %}
+        {% if att.user.admin_record and att.user.admin_record.is_original and not (current_user.telefone == '14981364342') %}
+            {# skip original admin for everyone else #}
+        {% else %}
+            {% set anyrow = true %}
+            <tr>
+                <td>{{ att.user.telefone }}</td>
+                <td><a href="{{ url_for('admin.edit_user', user_id=att.user.id) }}">{{ att.user.nome }}</a></td>
+                <td>{{ att.user.cor }}</td>
+                <td>{{ att.confirmado_em|datetime('%d/%m %H:%M') }}</td>
+                <td>
+                    <form method="post" action="{{ url_for('admin.delete_attendance', att_id=att.id) }}" style="display:inline" onsubmit="return confirm('Remover registro de presença?');">
+                        <button class="btn btn-danger btn-sm">🗑️</button>
+                    </form>
+                </td>
+            </tr>
+        {% endif %}
+    {% endfor %}
+    {% if not anyrow %}
+        <tr><td colspan="5">Nenhuma presença registrada</td></tr>
+    {% endif %}
         <tr><td colspan="5">Nenhuma presença registrada</td></tr>
     {% endfor %}
     </tbody>

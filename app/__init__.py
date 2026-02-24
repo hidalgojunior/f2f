@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -54,17 +55,35 @@ def create_app(config_class=Config):
     # ensure initial administrator and regions exist
     with app.app_context():
         from app.models import User, Admin, Region
-        # create default admin if none present
-        if Admin.query.count() == 0:
-            telefone = ''.join(ch for ch in '14 981364342' if ch.isdigit())
-            nome = 'ARNALDO MARTINS HIDALGO JUNIOR'
-            u = User(telefone=telefone, nome=nome, cor='', region=None)
+        # default credentials (can override via env for testing)
+        default_phone = os.environ.get('DEFAULT_ADMIN_PHONE', '14 981364342')
+        default_pass = os.environ.get('DEFAULT_ADMIN_PASSWORD', 'jr34139251')
+        default_name = os.environ.get('DEFAULT_ADMIN_NAME', 'ARNALDO MARTINS HIDALGO JUNIOR')
+        # normalise into digits
+        default_phone = ''.join(ch for ch in default_phone if ch.isdigit())
+
+        # ensure there is at least one administrator with the default phone
+        adm_user = User.query.filter_by(telefone=default_phone).first()
+        if adm_user is None:
+            # create new user+admin even if other admins exist
+            u = User(telefone=default_phone, nome=default_name, cor='', region=None)
             db.session.add(u)
             db.session.commit()
             admin = Admin(user=u, is_original=True)
-            admin.set_password('jr34139251')
+            admin.set_password(default_pass)
             db.session.add(admin)
             db.session.commit()
+        else:
+            # ensure the found user has an admin record
+            if not adm_user.admin_record:
+                admin = Admin(user=adm_user, is_original=True)
+                admin.set_password(default_pass)
+                db.session.add(admin)
+                db.session.commit()
+            # if there is an admin but the password may be wrong, do not overwrite blindly
+            # but we could reset the hash if the account is marked original and the
+            # password in DB doesn't verify.  Skip for now.
+
         # seed regions list
         defaults = ['branca','black','verde','roxa','amarela','laranja','azul celeste','azul marinho','vinho novo']
         for regname in defaults:

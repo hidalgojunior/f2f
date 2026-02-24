@@ -3,9 +3,18 @@
 {% block title %}Reunião - Administração{% endblock %}
 
 {% block content %}
+{% block breadcrumbs %}
+  <li class="breadcrumb-item"><a href="{{ url_for('admin.event_detail', event_id=meeting.event_id) }}">{{ meeting.event.nome }}</a></li>
+  <li class="breadcrumb-item active" aria-current="page">Reunião {{ meeting.data.strftime('%d/%m/%Y') }}</li>
+{% endblock %}
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h4 mb-0"><span aria-hidden="true">📝</span> Reunião em {{ meeting.data.strftime('%d/%m/%Y') }}</h1>
-    <a href="{{ url_for('admin.edit_meeting', meeting_id=meeting.id) }}" class="btn btn-secondary btn-sm">✏️ Editar reunião</a>
+    <div>
+      <a href="{{ url_for('admin.edit_meeting', meeting_id=meeting.id) }}" class="btn btn-secondary btn-sm">✏️ Editar reunião</a>
+      <form method="post" action="{{ url_for('admin.delete_meeting', meeting_id=meeting.id) }}" class="d-inline ms-1" onsubmit="return confirm('Excluir reunião e todos os dados relacionados?');">
+          <button type="submit" class="btn btn-danger btn-sm">🗑️</button>
+      </form>
+    </div>
 </div>
 <p>Evento: <span aria-hidden="true">📅</span> {{ meeting.event.nome }}</p>
 <p><span aria-hidden="true">👥</span> Presenças: {{ meeting.attendances|length }}</p>
@@ -26,15 +35,21 @@
             <th>Nome</th>
             <th>Cor</th>
             <th>Confirmado em</th>
+            <th>Ações</th>
         </tr>
     </thead>
     <tbody>
         {% for att in meeting.attendances %}
         <tr>
             <td>{{ att.user.telefone }}</td>
-            <td>{{ att.user.nome }}</td>
+            <td><a href="{{ url_for('admin.edit_user', user_id=att.user.id) }}">{{ att.user.nome }}</a></td>
             <td>{{ att.user.cor }}</td>
             <td>{{ att.confirmado_em|datetime('%d/%m %H:%M') }}</td>
+            <td>
+                <form method="post" action="{{ url_for('admin.delete_attendance', att_id=att.id) }}" style="display:inline" onsubmit="return confirm('Remover registro de presença?');">
+                    <button class="btn btn-danger btn-sm">🗑️</button>
+                </form>
+            </td>
         </tr>
         {% endfor %}
     </tbody>

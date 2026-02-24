@@ -81,9 +81,17 @@
             </div>
             <div class="col-12" style="height:200px;">
                 <div class="card h-100">
-                    <div class="card-header">Distribuição por região</div>
+                    <div class="card-header">Distribuição por região (total)</div>
                     <div class="card-body" style="position:relative;">
                         <canvas id="regionChart" class="w-100 h-100"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 mt-3" style="height:200px;">
+                <div class="card h-100">
+                    <div class="card-header">Participantes por região por reunião</div>
+                    <div class="card-body" style="position:relative;">
+                        <canvas id="regionBarChart" class="w-100 h-100"></canvas>
                     </div>
                 </div>
             </div>
@@ -144,6 +152,14 @@
 <script>
 const labels = {{ chart_labels|tojson }};
 const dataVals = {{ chart_totals|tojson }};
+// configure charts to fill their container height and avoid overflow
+const configCommon = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+        y: { beginAtZero: true }
+    }
+};
 const ctx = document.getElementById('attendanceChart').getContext('2d');
 new Chart(ctx, {
     type: 'bar',
@@ -157,7 +173,50 @@ new Chart(ctx, {
             data: dataVals
         }]
     },
-    options: {
+    options: configCommon
+});
+const ctx2 = document.getElementById('regionChart').getContext('2d');
+new Chart(ctx2, {
+    type: 'pie',
+    data: {
+        labels: {{ region_labels|tojson if region_labels else [] }},
+        datasets: [{
+            data: {{ region_totals|tojson if region_totals else [] }},
+            backgroundColor: [
+                '#007bff','#28a745','#ffc107','#dc3545','#17a2b8','#6c757d'
+            ]
+        }]
+    },
+    options: configCommon
+});
+// region-by-meeting stacked bar chart
+const ctx3 = document.getElementById('regionBarChart').getContext('2d');
+const meetingLabels = {{ chart_labels|tojson }};
+const regionMeeting = {{ region_meeting|tojson }};
+const datasets = [];
+let colorIdx = 0;
+const palette = ['#007bff','#28a745','#ffc107','#dc3545','#17a2b8','#6c757d','#6610f2','#e83e8c'];
+for (const [region, values] of Object.entries(regionMeeting)) {
+    datasets.push({
+        label: region,
+        data: values,
+        backgroundColor: palette[colorIdx % palette.length],
+    });
+    colorIdx++;
+}
+new Chart(ctx3, {
+    type: 'bar',
+    data: {
+        labels: meetingLabels,
+        datasets: datasets
+    },
+    options: Object.assign({}, configCommon, {
+        scales: {
+            x: { stacked: true },
+            y: { stacked: true, beginAtZero: true }
+        }
+    })
+});
         responsive: true,
         maintainAspectRatio: false,
         scales: {

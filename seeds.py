@@ -1,4 +1,5 @@
 """Utility to seed initial data such as original administrator."""
+import os
 from app import create_app, db
 from app.models import User, Admin
 from datetime import datetime
@@ -39,8 +40,9 @@ def create_original_admin():
                 cols5 = [row[1] for row in res5]
                 if 'region_id' not in cols5:
                     conn.execute(text('ALTER TABLE user ADD COLUMN region_id INTEGER'))
-        telefone = '14981364342'
-        senha = 'jr34139251'
+        # default administrator credentials (same as in app/__init__)
+        telefone = ''.join(ch for ch in os.environ.get('DEFAULT_ADMIN_PHONE', '14981364342') if ch.isdigit())
+        senha = os.environ.get('DEFAULT_ADMIN_PASSWORD', 'jr34139251')
         user = User.query.filter_by(telefone=telefone).first()
         if user is None:
             user = User(telefone=telefone, nome='Arnaldo Martins Hidalgo Junior', cor='azul celeste')

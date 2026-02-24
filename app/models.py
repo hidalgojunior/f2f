@@ -57,6 +57,9 @@ team_user = db.Table('team_user',
 class Team(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(120), nullable=False)
+    # optional leader for the team; a user who leads this group
+    leader_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    leader = db.relationship('User', foreign_keys=[leader_id])
     meeting_id = db.Column(db.Integer, db.ForeignKey('meeting.id'))
     region_id = db.Column(db.Integer, db.ForeignKey('region.id'))
     meeting = db.relationship('Meeting', back_populates='teams')

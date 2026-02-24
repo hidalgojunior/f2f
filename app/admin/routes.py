@@ -77,6 +77,8 @@ def dashboard():
     region_counts = {}
     # iterate by event -> meetings sorted by date
     events = Event.query.order_by(Event.data_inicial).all()
+    # region-by-meeting counts will support another chart
+    region_meeting = {}  # region -> list of totals per meeting (aligned with chart_labels)
     for ev in events:
         meetings = sorted(ev.meetings, key=lambda m: m.data)
         for idx, mt in enumerate(meetings):
@@ -98,6 +100,13 @@ def dashboard():
                 cor = att.user.cor
                 by_region[cor] = by_region.get(cor, 0) + 1
                 region_counts[cor] = region_counts.get(cor, 0) + 1
+            # record per-region data for this meeting
+            for cor, cnt in by_region.items():
+                region_meeting.setdefault(cor, []).append(cnt)
+            # ensure zeros for regions with no attendees this meeting
+            for cor in list(region_counts.keys()):
+                if cor not in by_region:
+                    region_meeting.setdefault(cor, []).append(0)
             new = missing = 0
             prev = meetings[idx - 1] if idx > 0 else None
             if prev:
@@ -111,6 +120,7 @@ def dashboard():
                            chart_labels=chart_labels, chart_totals=chart_totals,
                            region_labels=list(region_counts.keys()),
                            region_totals=list(region_counts.values()),
+                           region_meeting=region_meeting,
                            participant_q=participant_q, regions=regions, region_id=region_id)
 
 
@@ -289,10 +299,8 @@ def delete_event(event_id):
     if request.method == 'GET':
         flash('Use o botão de exclusão na lista para remover o evento.', 'info')
         return redirect(url_for('admin.list_events'))
-    # POST actually deletes everything via cascading relationships
-    # also remove any teams linked to event
-    from sqlalchemy import text
-    db.session.execute(text('DELETE FROM team WHERE event_id = :eid'), {'eid': event_id})
+    # Removing the Event object will cascade to its meetings and their teams
+    # thanks to SQLAlchemy relationships defined with cascade='all, delete-orphan'.
     db.session.delete(ev)
     db.session.commit()
     flash('Evento excluído', 'success')
@@ -446,8 +454,16 @@ def list_users():
         if r:
             u.region_id = r.id
     db.session.commit()
+    # determine whether original admin should be visible
+    show_original = False
+    if current_user.is_authenticated:
+        show_original = (current_user.telefone == '14981364342' or
+                         (current_user.admin_record and current_user.admin_record.is_original))
     # build query
     query = User.query
+    if not show_original:
+        # exclude original administrator from everyone else
+        query = query.filter(~User.admin_record.has(is_original=True))
     if name_q:
         query = query.filter(User.nome.ilike(f"%{name_q}%"))
     if region_id:
@@ -656,7 +672,8 @@ def manage_team_members(team_id):
     team = Team.query.get_or_404(team_id)
     mt = team.meeting
     # get users who attended this meeting
-    user_ids = [a.user_id for a in mt.attendances]
+    # hide original admin from member selection unless he is the current user
+    user_ids = [a.user_id for a in mt.attendances if not (a.user.admin_record and a.user.admin_record.is_original and (not (current_user.is_authenticated and current_user.telefone=='14981364342')))]
     # compute attendance counts across all meetings for these users
     from sqlalchemy import func
     counts = (db.session.query(User.id, func.count(Attendance.id).label('cnt'))
@@ -668,6 +685,14 @@ def manage_team_members(team_id):
     if request.method == 'POST':
         selected = request.form.getlist('user_id')
         team.users = User.query.filter(User.id.in_(selected)).all()
+        # leader selection (may be empty or not in users)
+        leader_val = request.form.get('leader_id')
+        if leader_val:
+            leader = User.query.get(int(leader_val))
+            if leader in team.users:
+                team.leader = leader
+        else:
+            team.leader = None
         db.session.commit()
         flash('Membros atualizados', 'success')
         return redirect(url_for('admin.manage_team_members', team_id=team_id))

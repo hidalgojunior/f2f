@@ -3,7 +3,13 @@
 Revision ID: mb34addteam
 Revises: 3e3a64950a2f
 Create Date: 2026-02-24 13:10:00.000000
-"""
+Note: this migration ensures the `team.nome` column exists and creates
+an association table `team_user` for the many-to-many relationship
+between teams and users.  Early iterations of the admin routes
+attempted to delete teams by `event_id`, which isn’t a real column in
+the schema; that mistake caused 500 errors on event deletion.  The
+problem was fixed in application code, but the migration remains for
+historical context and to allow fresh installs to initialize correctly."""
 from alembic import op
 import sqlalchemy as sa
 

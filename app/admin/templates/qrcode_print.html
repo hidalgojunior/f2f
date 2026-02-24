@@ -12,6 +12,7 @@
 </head>
 <body>
 <div class="container">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" style="max-height:100px; margin-bottom:1rem;" />
     <h4>FACE A FACE COM DEUS PARA HOMENS</h4>
     <h5>{{ event.nome }}</h5>
     <h6>Reunião: {{ qr.meeting.data.strftime('%d/%m/%Y') }}</h6>

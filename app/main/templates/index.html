@@ -7,5 +7,24 @@
 <p>Use o link do QR Code para registrar presença. O link padrão para testes será algo como:</p>
 <pre class="bg-light p-2">http://31.97.251.198:5000/scan/&lt;token&gt;</pre>
 <p>Gere eventos e reuniões na área de administração e clique em "Imagem do QR" para obter o link correto.</p>
+{% if open_meetings %}
+<h2 class="mt-4">Reuniões abertas</h2>
+<div class="row">
+{% for mt, qr in open_meetings %}
+  <div class="col-md-4 mb-4">
+    <div class="card h-100">
+      <div class="card-body text-center">
+        <h4 class="card-title mb-3">{{ mt.titulo or mt.data.strftime('%d/%m/%Y') }}</h4>
+        <p class="small text-muted">{{ mt.event.nome }}</p>
+        <a href="{{ url_for('main.scan', token=qr.token) }}" class="btn btn-primary btn-sm mb-2">Abrir página de inscrição</a>
+        <div>
+          <img src="{{ url_for('main.public_qrcode_image', qrcode_id=qr.id) }}" alt="QR code" style="max-width:100%;" />
+        </div>
+      </div>
+    </div>
+  </div>
+{% endfor %}
+</div>
+{% endif %}
 <p><a href="{{ url_for('main.request_access') }}" class="btn btn-vivid-tangerine">Solicitar acesso ao sistema</a></p>
 {% endblock %}

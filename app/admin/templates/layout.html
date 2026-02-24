@@ -64,6 +64,12 @@
     </div>
   </div>
 </nav>
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb m-0 py-2">
+    <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Admin</a></li>
+    {% block breadcrumbs %}{% endblock %}
+  </ol>
+</nav>
 <main id="main-content" class="container py-4" role="main">
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}

@@ -4,6 +4,9 @@
 
 {% block content %}
 <h1 class="h3 mb-4">Eventos</h1>
+{% block breadcrumbs %}
+  <li class="breadcrumb-item active" aria-current="page">Eventos</li>
+{% endblock %}
 <p><a href="{{ url_for('admin.new_event') }}" class="btn btn-primary btn-sm">Novo evento</a></p>
 <div class="row mt-4">
     {% for ev in events %}

@@ -23,14 +23,16 @@ A aplicação pode ser executada de duas formas:
 
    Isso iniciará o serviço `db` (MySQL) e `web` (Flask app) em `31.97.251.198:5000`.
 
-2. No primeiro lançamento, crie as tabelas e o administrador original:
+2. No primeiro lançamento, crie as tabelas e o administrador original (pode ser rodado novamente sempre que o banco não tiver o usuário esperado):
 
    ```sh
    docker-compose run web flask db upgrade   # aplica migrações
-   docker-compose run web python seeds.py
+   docker-compose run web python seeds.py    # garante que o admin padrão exista
    ```
 
-   Usuário: `14981364342`, senha: `jr34139251`.
+   Usuário padrão: `14981364342`, senha: `jr34139251`.
+   
+   *Observação:* o telefone é **normalizado** antes da pesquisa, então a máscara não importa – por exemplo, `(14) 98136‑4342` será convertido para `14981364342` ao tentar fazer login. Há também um link "Solicitar acesso" no rodapé e na página de login caso você precise se tornar administrador.
 
 ### 2. Localmente sem Docker (fallback para SQLite)
 
@@ -54,6 +56,7 @@ Abra o navegador em `http://31.97.251.198:5000/admin/login` e entre com as crede
 
 4. Use a interface de administração para cadastrar eventos, reuniões e gerar QR codes.
    - Cada reunião gerará um token; clique para visualizar o QR e abrir em outra aba para testar.
+   - Em cada reunião você pode **editar ou excluir** a própria reunião, e também ver/editar/excluir cada participante na lista de presenças.
    - O link de leitura é `http://31.97.251.198:5000/scan/<token>`.
 
 5. Escaneie o QR (ou acesse manualmente) e siga os passos na tela.
@@ -73,7 +76,9 @@ Abra o navegador em `http://31.97.251.198:5000/admin/login` e entre com as crede
 
 ## Observações
 
-- A aplicação já está localizada em português-BR e utiliza o fuso `America/Sao_Paulo`.
+- A aplicação já está localizada em português‑BR e utiliza o fuso `America/Sao_Paulo`.
+- O dashboard agora inclui gráficos comparativos por região: distribuição total, e um gráfico de barras empilhadas mostrando o número de participantes de cada região em cada reunião. Use os filtros de participante e região para ajustar as visualizações.
+- Em reuniões especiais, cada equipe pode ter um **líder**; ao gerenciar os membros basta selecionar o responsável e ele aparecerá no topo da lista com texto em negrito e o formato "Nome – Telefone". Os demais membros vêm abaixo em ordem alfabética.
 - A interface agora utiliza Bootstrap 5, oferecendo um visual mais profissional e responsivo. Algumas classes Tailwind ainda existem nos templates mas a biblioteca foi removida para evitar conflitos (como o bug de menu dropdown que fechava a tela toda). O dashboard administrativo foi redesenhado com cards e uma barra de navegação moderna.
 - Integração com WhatsApp agora simplificada: a aplicação gera links diretos `wa.me` que podem ser abertos para iniciar conversas. Não há necessidade de nenhum serviço adicional ou dependência externa.
 - Busca por região agora inclui também usuários que tinham apenas a cor preenchida; os migramos automaticamente para o campo `region_id` no primeiro acesso.
@@ -90,7 +95,7 @@ Abra o navegador em `http://31.97.251.198:5000/admin/login` e entre com as crede
   Essas chamadas exigem o token de API configurado na tela de configurações.
 - Eventos precisam de data inicial e final; o sistema fecha QR automaticamente após o término.
 - Quando um novo QR é gerado para uma reunião, o antigo é desativado e quem usar o link antigo será redirecionado para o código ativo.
-- Administradores podem excluir eventos inteiros (removendo também reuniões, qrcodes, presenças e equipes associadas).
+- Administradores podem excluir eventos inteiros (removendo também reuniões, qrcodes, presenças e equipes associadas). **Não é necessário apagar as reuniões manualmente**; a exclusão do evento trata tudo em cascata. Você também pode excluir cada reunião individualmente a partir da página de detalhe da reunião. Se encontrar um erro 500 nessas ações, reinicie o container (`docker compose up -d`) ou recarregue a página para garantir que está executando a versão mais recente do código.
 - As interfaces usam ícones (📅, ✏️, 🗑️, 👥, etc.) para tornar ações e informações mais visuais.
 - QR codes sempre apontam para o servidor definido em `SERVER_ADDRESS` (por padrão 31.97.251.198:5000), não para localhost.
 - É possível filtrar usuários por nome ou por região na interface de administração.
