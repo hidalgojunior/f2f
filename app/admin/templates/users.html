@@ -1,0 +1,87 @@
+{% extends 'layout.html' %}
+
+{% block title %}Usuários - Administração{% endblock %}
+
+{% block content %}
+<h1 class="h4 mb-4">Usuários</h1>
+<div class="container-fluid">
+<div class="d-flex justify-content-between align-items-center">
+    <p><a href="{{ url_for('admin.list_events') }}">&larr; Voltar aos eventos</a></p>
+    <a href="{{ url_for('admin.new_user') }}" class="btn btn-success">+ Novo usuário</a>
+</div>
+<form method="get" class="row g-2 mt-4" role="search" aria-label="Filtrar usuários">
+    <div class="col-auto">
+        <input type="text" name="name" placeholder="Buscar nome" value="{{ name_q }}" class="form-control" />
+    </div>
+    <div class="col-auto">
+        <select name="region_id" class="form-select">
+            <option value="">Todas regiões</option>
+            {% for reg in regions %}
+                <option value="{{ reg.id }}" {% if region_id == reg.id|string %}selected{% endif %}><span class="region-name">{{ reg.nome }}</span></option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+    </div>
+</form>
+<div class="table-responsive">
+<table class="table table-striped mt-4" role="table">
+    <thead>
+        <caption class="visually-hidden">Lista de usuários cadastrados</caption>
+        <tr>
+            <th>Telefone</th>
+            <th>Nome</th>
+            <th>Região</th>
+            <th>Cor</th>
+            <th>Data cadastro</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for u in users %}
+        <tr>
+            <td>{{ u.telefone }}</td>
+            <td>{{ u.nome }}</td>
+            <td>{{ u.region.nome if u.region else '' }}</td>
+            <td>{{ u.cor }}</td>
+            <td>{{ u.criado_em|datetime('%d/%m/%Y %H:%M') }}</td>
+            <td>
+                <a href="{{ url_for('admin.edit_user', user_id=u.id) }}" class="btn btn-sm btn-outline-secondary me-1" aria-label="Editar {{ u.nome }}">✏️</a>
+                <form method="post" action="{{ url_for('admin.delete_user', user_id=u.id) }}" style="display:inline" onsubmit="return confirm('Confirmar exclusão?');">
+                    <button type="submit" class="btn btn-sm btn-outline-danger" aria-label="Excluir {{ u.nome }}">🗑️</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+{% if pagination and pagination.pages > 1 %}
+<nav aria-label="Paginação de usuários">
+  <ul class="pagination justify-content-center mt-4">
+    {% if pagination.has_prev %}
+      <li class="page-item"><a class="page-link" href="?page={{ pagination.prev_num }}&name={{ name_q }}&region_id={{ region_id }}">&laquo;</a></li>
+    {% else %}
+      <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+    {% endif %}
+    {% for p in pagination.iter_pages(left_edge=2,right_edge=2,left_current=2,right_current=2) %}
+      {% if p %}
+        {% if p == pagination.page %}
+          <li class="page-item active"><span class="page-link">{{ p }}</span></li>
+        {% else %}
+          <li class="page-item"><a class="page-link" href="?page={{ p }}&name={{ name_q }}&region_id={{ region_id }}">{{ p }}</a></li>
+        {% endif %}
+      {% else %}
+        <li class="page-item disabled"><span class="page-link">…</span></li>
+      {% endif %}
+    {% endfor %}
+    {% if pagination.has_next %}
+      <li class="page-item"><a class="page-link" href="?page={{ pagination.next_num }}&name={{ name_q }}&region_id={{ region_id }}">&raquo;</a></li>
+    {% else %}
+      <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends 'layout.html' %}
+
+{% block title %}Solicitações de Acesso{% endblock %}
+
+{% block content %}
+<h1 class="h4 mb-4">Solicitações de Acesso</h1>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Telefone</th>
+            <th>Região</th>
+            <th>Propósito</th>
+            <th>Data</th>
+            <th>Status</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for r in requests %}
+        <tr>
+            <td>{{ r.nome }}</td>
+            <td>{{ r.telefone }}</td>
+            <td><span class="region-name">{{ r.region.nome if r.region else '' }}</span></td>
+            <td>{{ r.purpose }}</td>
+            <td>{{ r.criado_em|datetime('%d/%m/%Y %H:%M') }}</td>
+            <td>{{ 'Aprovado' if r.approved else 'Pendente' }}</td>
+            <td>
+                {% if not r.approved %}
+                <form method="post" action="{{ url_for('admin.approve_access_request', req_id=r.id) }}" style="display:inline">
+                    <button class="btn btn-primary btn-sm">Aprovar</button>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+    {% else %}
+        <tr><td colspan="7">Nenhuma solicitação</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

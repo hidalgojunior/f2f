@@ -1,0 +1,65 @@
+{% extends 'layout.html' %}
+
+{% block title %}Reunião - Administração{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0"><span aria-hidden="true">📝</span> Reunião em {{ meeting.data.strftime('%d/%m/%Y') }}</h1>
+    <a href="{{ url_for('admin.edit_meeting', meeting_id=meeting.id) }}" class="btn btn-secondary btn-sm">✏️ Editar reunião</a>
+</div>
+<p>Evento: <span aria-hidden="true">📅</span> {{ meeting.event.nome }}</p>
+<p><span aria-hidden="true">👥</span> Presenças: {{ meeting.attendances|length }}</p>
+<form method="post" action="{{ url_for('admin.generate_qrcode', meeting_id=meeting.id) }}" class="mb-4">
+    <button type="submit" class="btn btn-primary">📷 Gerar QR Code</button>
+</form>
+<h5 class="mt-4">Lista de presenças</h5>
+<div class="mb-3">
+    <a href="{{ url_for('admin.attendance_list', meeting_id=meeting.id) }}" class="btn btn-secondary btn-sm">Ver em nova página</a>
+    <a href="{{ url_for('admin.export_attendance', meeting_id=meeting.id, fmt='xlsx') }}" class="btn btn-outline-success btn-sm">Exportar XLSX</a>
+    <a href="{{ url_for('admin.export_attendance', meeting_id=meeting.id, fmt='pdf') }}" class="btn btn-outline-secondary btn-sm">Exportar PDF</a>
+</div>
+{% if meeting.attendances %}
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Telefone</th>
+            <th>Nome</th>
+            <th>Cor</th>
+            <th>Confirmado em</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for att in meeting.attendances %}
+        <tr>
+            <td>{{ att.user.telefone }}</td>
+            <td>{{ att.user.nome }}</td>
+            <td>{{ att.user.cor }}</td>
+            <td>{{ att.confirmado_em|datetime('%d/%m %H:%M') }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<a href="{{ url_for('admin.meeting_missed', meeting_id=meeting.id) }}" class="btn btn-warning btn-sm mt-2">Ver faltantes</a>
+{% else %}
+<p>Nenhuma presença registrada ainda.</p>
+{% endif %}
+<ul class="list-unstyled">
+    {% if meeting.special %}
+    <li><a href="{{ url_for('admin.meeting_teams', meeting_id=meeting.id) }}" class="btn btn-secondary btn-sm mb-3">Gerenciar equipes</a></li>
+    {% endif %}
+    {% for qr in meeting.qrcodes %}
+        <li>
+            <div class="mb-2">
+                <a href="{{ url_for('admin.qrcode_view', qrcode_id=qr.id) }}" class="btn btn-sm btn-outline-primary">🔍 Visualizar QR</a>
+                <span class="mx-2">Status: <strong>{{ 'Aberto' if qr.active else 'Fechado' }}</strong></span>
+                <form method="post" action="{{ url_for('admin.qrcode_toggle', qrcode_id=qr.id) }}" style="display:inline">
+                    <button type="submit" class="btn btn-sm btn-outline-secondary">{{ '🔒 Fechar' if qr.active else '🔓 Abrir' }}</button>
+                </form>
+                <div class="mt-1"><small>{{ url_for('main.scan', token=qr.token, _external=True) }}</small></div>
+            </div>
+        </li>
+    {% else %}
+        <li>Nenhum QR code gerado</li>
+    {% endfor %}
+</ul>
+{% endblock %}

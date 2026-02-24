@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <title>QR Code - {{ event.nome }}</title>
+    <style>
+    body { margin:0; padding:0; text-align:center; font-family: sans-serif; }
+    .container { display:flex; flex-direction:column; justify-content:center; align-items:center; height:100vh; }
+    h4, h5, h6 { margin:0; }
+    img.qr { max-width:80%; height:auto; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h4>FACE A FACE COM DEUS PARA HOMENS</h4>
+    <h5>{{ event.nome }}</h5>
+    <h6>Reunião: {{ qr.meeting.data.strftime('%d/%m/%Y') }}</h6>
+    <div style="margin:2rem 0;">
+        <img src="{{ url_for('admin.qrcode_image', qrcode_id=qr.id) }}" alt="QR code" class="qr">
+    </div>
+</div>
+</body>
+</html>

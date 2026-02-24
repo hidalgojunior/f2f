@@ -1,0 +1,38 @@
+{% extends 'layout.html' %}
+
+{% block title %}QR Codes{% endblock %}
+
+{% block content %}
+<h1 class="h4 mb-4">QR Codes por Evento</h1>
+{% for ev in events %}
+  <div class="mb-5">
+    <h3>{{ ev.nome }} ({{ ev.data_inicial.strftime('%d/%m/%Y') }} – {{ ev.data_final.strftime('%d/%m/%Y') }})</h3>
+    {% if ev.meetings %}
+      {% for mt in ev.meetings %}
+        <div class="ms-3 mb-3">
+          <h4 class="mb-1">{{ mt.titulo or mt.data.strftime('%d/%m/%Y') }}</h4>
+          {% if mt.qrcodes %}
+            <ul class="list-group">
+              {% for qr in mt.qrcodes %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  <span>Token: {{ qr.token }} – {{ 'Aberto' if qr.active else 'Fechado' }}</span>
+                  <span>
+                    <a href="{{ url_for('admin.qrcode_view', qrcode_id=qr.id) }}" class="btn btn-secondary btn-sm" title="View/print">🔍</a>
+                    <form method="post" action="{{ url_for('admin.qrcode_toggle', qrcode_id=qr.id) }}" style="display:inline">
+                      <button class="btn btn-danger btn-sm">{{ 'Fechar' if qr.active else 'Abrir' }}</button>
+                    </form>
+                  </span>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="ms-4">Nenhum QR gerado para esta reunião.</p>
+          {% endif %}
+        </div>
+      {% endfor %}
+    {% else %}
+      <p>Nenhuma reunião neste evento.</p>
+    {% endif %}
+  </div>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends 'layout.html' %}
+
+{% block title %}Equipes - {{ meeting.titulo or meeting.data.strftime('%d/%m/%Y') }}{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-4">Equipes para reunião {{ meeting.titulo or meeting.data.strftime('%d/%m/%Y') }}</h1>
+<form method="post" class="mb-3 row gx-2 gy-2 align-items-end">
+  <div class="col-auto">
+     <label class="form-label">Nome da equipe</label>
+     <input type="text" name="name" class="form-control" required />
+  </div>
+  <div class="col-auto">
+     <button class="btn btn-primary">Criar equipe</button>
+  </div>
+</form>
+{% if teams %}
+  <ul class="list-group">
+    {% for team in teams %}
+      <li class="list-group-item">
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="fw-bold">{{ team.nome }}</span>
+          <form method="post" action="{{ url_for('admin.delete_team', meeting_id=meeting.id, team_id=team.id) }}" class="m-0">
+             <button class="btn btn-danger btn-sm">Excluir</button>
+          </form>
+        </div>
+        <div class="mt-2">
+            <a href="{{ url_for('admin.manage_team_members', team_id=team.id) }}" class="btn btn-sm btn-outline-secondary mb-2">Gerenciar membros</a>
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+   <p>Nenhuma equipe criada.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'layout.html' %}
+
+{% block title %}QR Code - {{ event.nome }}{% endblock %}
+
+{% block content %}
+<div class="text-center mb-4">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" style="max-width:120px;" />
+    <h4 class="mt-2">FACE A FACE COM DEUS PARA HOMENS</h4>
+    <h5 class="mb-1">{{ event.nome }}</h5>
+    <h6 class="mb-2">Reunião: {{ qr.meeting.data.strftime('%d/%m/%Y') }}</h6>
+</div>
+<div class="d-flex justify-content-center">
+    <img src="{{ url_for('admin.qrcode_image', qrcode_id=qr.id) }}" alt="QR code" class="img-fluid" style="max-width:300px;">
+</div>
+<p class="mt-4 text-center">
+    Status: <strong>{{ 'Aberto' if qr.active else 'Fechado' }}</strong>
+</p>
+<div class="text-center mt-2">
+    <form method="post" action="{{ url_for('admin.qrcode_toggle', qrcode_id=qr.id) }}" style="display:inline">
+        <button type="submit" class="btn btn-secondary">
+            {{ 'Fechar' if qr.active else 'Abrir' }} inscrições
+        </button>
+    </form>
+    &nbsp;&nbsp;
+    <a href="{{ url_for('admin.qrcode_print', qrcode_id=qr.id) }}" target="_blank" class="btn btn-primary">Visualizar impressão</a>
+</div>
+{% endblock %}

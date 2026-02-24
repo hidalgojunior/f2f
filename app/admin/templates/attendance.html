@@ -1,0 +1,39 @@
+{% extends 'layout.html' %}
+
+{% block title %}Lista de Presença{% endblock %}
+
+{% block content %}
+<h1 class="h4 mb-4">Presenças - {{ meeting.titulo or meeting.data.strftime('%d/%m/%Y') }}</h1>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Telefone</th>
+            <th>Nome</th>
+            <th>Cor</th>
+            <th>Confirmado em</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for att in meeting.attendances %}
+        <tr>
+            <td>{{ att.user.telefone }}</td>
+            <td><a href="{{ url_for('admin.edit_user', user_id=att.user.id) }}">{{ att.user.nome }}</a></td>
+            <td>{{ att.user.cor }}</td>
+            <td>{{ att.confirmado_em|datetime('%d/%m %H:%M') }}</td>
+            <td>
+                <form method="post" action="{{ url_for('admin.delete_attendance', att_id=att.id) }}" style="display:inline" onsubmit="return confirm('Remover registro de presença?');">
+                    <button class="btn btn-danger btn-sm">🗑️</button>
+                </form>
+            </td>
+        </tr>
+    {% else %}
+        <tr><td colspan="5">Nenhuma presença registrada</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+<p class="mt-3">
+    <a class="btn btn-outline-success btn-sm" href="{{ url_for('admin.export_attendance', meeting_id=meeting.id, fmt='xlsx') }}">Download XLSX</a>
+    <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('admin.export_attendance', meeting_id=meeting.id, fmt='pdf') }}">Download PDF</a>
+</p>
+{% endblock %}

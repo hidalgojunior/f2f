@@ -1,0 +1,18 @@
+{% extends 'layout.html' %}
+
+{% block title %}Editar Região{% endblock %}
+
+{% block content %}
+<h1 class="h4 mb-4">Editar Região</h1>
+<form method="post">
+    <label>Nome:<br>
+        <input id="nome" type="text" name="nome" value="{{ region.nome }}" class="form-control" required>
+    </label>
+    <br>
+    <button type="submit" class="btn btn-primary">Salvar</button>
+</form>
+<script>
+const nomeInput = document.getElementById('nome');
+nomeInput.addEventListener('input', () => { nomeInput.value = nomeInput.value.toUpperCase(); });
+</script>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'layout.html' %}
+
+{% block title %}Faltantes - {{ meeting.titulo or meeting.data.strftime('%d/%m/%Y') }}{% endblock %}
+
+{% block content %}
+<h1 class="h4 mb-4">Faltaram à reunião {{ meeting.titulo or meeting.data.strftime('%d/%m/%Y') }}</h1>
+{% if next_date %}
+<p>Próxima reunião ({{ next_type }}): {{ next_date.strftime('%d/%m/%Y') }}</p>
+{% endif %}
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Telefone</th>
+            <th>Nome</th>
+            <th>Ação</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for user in missed %}
+        <tr>
+            <td>{{ user.telefone }}</td>
+            <td>{{ user.nome }}</td>
+            <td>
+                <a class="btn btn-sm btn-primary" href="{{ url_for('admin.whatsapp', to=user.telefone, body='Oi '+user.nome+', sentimos sua falta. Próxima reunião será em '+(next_date.strftime('%d/%m/%Y') if next_date else '...')) }}" target="_blank">Lembrar</a>
+            </td>
+        </tr>
+    {% else %}
+        <tr><td colspan="3">Nenhum ausente</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

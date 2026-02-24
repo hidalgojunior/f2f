@@ -1,0 +1,27 @@
+{% extends 'layout.html' %}
+
+{% block title %}Editar Evento{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+<h1 class="h4 mb-4">Editar Evento</h1>
+<form method="post">
+    <div>
+        <label>Título:<br>
+            <input type="text" name="nome" value="{{ event.nome }}" class="form-control" required>
+        </label>
+    </div>
+    <div>
+        <label>Data inicial:<br>
+            <input type="date" name="data" value="{{ event.data_inicial }}" class="form-control">
+        </label>
+    </div>
+    <div>
+        <label>Data final:<br>
+            <input type="date" name="data_final" value="{{ event.data_final }}" class="form-control">
+        </label>
+    </div>
+    <button type="submit" class="btn btn-primary">Salvar</button>
+</form>
+</div>
+{% endblock %}

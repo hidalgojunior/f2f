@@ -1,0 +1,12 @@
+{% extends 'layout.html' %}
+
+{% block title %}Confirmar Exclusão{% endblock %}
+
+{% block content %}
+<h1 class="h4 mb-4">Confirmar exclusão</h1>
+<p>Tem certeza que deseja excluir o evento <strong>{{ event.nome }}</strong> e todas as reuniões e presenças associadas?</p>
+<form method="post" class="mt-4">
+    <button type="submit" class="btn btn-danger me-2">Sim, excluir</button>
+    <a href="{{ url_for('admin.list_events') }}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

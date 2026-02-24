@@ -1,0 +1,26 @@
+{% extends 'layout.html' %}
+
+{% block title %}Editar Reunião{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+<h1 class="h4 mb-4">Editar Reunião</h1>
+<form method="post">
+    <div>
+        <label>Título:<br>
+            <input type="text" name="titulo" value="{{ meeting.titulo }}" class="form-control" required>
+        </label>
+    </div>
+    <div>
+        <label>Data da reunião:<br>
+            <input type="date" name="data" value="{{ meeting.data }}" class="form-control">
+        </label>
+    </div>
+    <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="special" id="specialCheck" {% if meeting.special %}checked{% endif %}>
+        <label class="form-check-label" for="specialCheck">Reunião especial (equipes por região)</label>
+    </div>
+    <button type="submit" class="btn btn-primary">Salvar</button>
+</form>
+</div>
+{% endblock %}

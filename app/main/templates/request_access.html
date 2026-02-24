@@ -1,0 +1,39 @@
+{% extends 'layout.html' %}
+
+{% block title %}Solicitar Acesso{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+<h1 class="h3 mb-4">Solicitar acesso</h1>
+<form method="post" class="row g-3">
+    <div class="col-12">
+        <label class="form-label">Nome completo</label>
+        <input type="text" name="nome" class="form-control" required>
+    </div>
+    <div class="col-12">
+        <label class="form-label">Telefone</label>
+        <input type="text" name="telefone" class="form-control" required>
+    </div>
+    <div class="col-12">
+        <label class="form-label">Região</label>
+        <select name="region_id" class="form-select" required>
+            <option value="">-- escolha --</option>
+            {% for reg in regions %}
+            <option value="{{ reg.id }}"><span class="region-name">{{ reg.nome }}</span></option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-12">
+        <label class="form-label">Propósito</label>
+        <textarea name="purpose" class="form-control"></textarea>
+    </div>
+    <div class="col-12">
+        <label class="form-label">Senha desejada</label>
+        <input type="password" name="password" class="form-control" required>
+    </div>
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">Enviar solicitação</button>
+    </div>
+</form>
+</div>
+{% endblock %}

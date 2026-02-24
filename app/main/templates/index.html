@@ -1,0 +1,11 @@
+{% extends 'layout.html' %}
+
+{% block title %}Página Inicial - F2F{% endblock %}
+
+{% block content %}
+<h1 class="h4 mb-4">Bem-vindo ao F2F</h1>
+<p>Use o link do QR Code para registrar presença. O link padrão para testes será algo como:</p>
+<pre class="bg-light p-2">http://31.97.251.198:5000/scan/&lt;token&gt;</pre>
+<p>Gere eventos e reuniões na área de administração e clique em "Imagem do QR" para obter o link correto.</p>
+<p><a href="{{ url_for('main.request_access') }}" class="btn btn-vivid-tangerine">Solicitar acesso ao sistema</a></p>
+{% endblock %}

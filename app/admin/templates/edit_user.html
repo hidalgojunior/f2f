@@ -1,0 +1,29 @@
+{% extends 'layout.html' %}
+
+{% block title %}Editar Usuário{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+<h1 class="h4 mb-4">Editar Usuário</h1>
+<form method="post" class="">
+    <div class="mb-3">
+        <label class="form-label">Telefone</label>
+        <input type="text" name="telefone" value="{{ user.telefone }}" readonly class="form-control-plaintext" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Nome</label>
+        <input type="text" name="nome" value="{{ user.nome }}" class="form-control" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Região</label>
+        <select name="region_id" class="form-select">
+            <option value="">-- escolha --</option>
+            {% for reg in regions %}
+                <option value="{{ reg.id }}" {% if user.region_id == reg.id %}selected{% endif %}>{{ reg.nome }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <button type="submit" class="btn btn-success">Salvar</button>
+</form>
+</div>
+{% endblock %}

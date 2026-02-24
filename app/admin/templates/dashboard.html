@@ -1,0 +1,197 @@
+{% extends 'layout.html' %}
+
+{% block title %}Dashboard - Administração{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="h3">Dashboard</h1>
+        <p class="mb-0">Bem-vindo, {{ current_user.nome }}!</p>
+        {% if current_user.admin_record and current_user.admin_record.is_original %}
+        <form method="post" action="{{ url_for('admin.clear_data') }}" onsubmit="return confirm('Remover todos os dados do sistema?');" class="mt-2">
+            <button class="btn btn-danger btn-sm">🔄 Limpar dados</button>
+        </form>
+        {% endif %}
+        <ul class="mt-3 list-inline">
+            <li class="list-inline-item"><a href="{{ url_for('admin.list_events') }}" class="btn btn-link btn-sm">Gerenciar eventos</a></li>
+            <li class="list-inline-item"><a href="{{ url_for('admin.list_users') }}" class="btn btn-link btn-sm">Gerenciar usuários</a></li>
+        </ul>
+    </div>
+</div>
+
+<!-- search filters card -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">Busca</div>
+            <div class="card-body">
+                <form method="get" class="row g-2 align-items-end">
+                    <div class="col-md-5">
+                        <label for="participant" class="form-label">Participante</label>
+                        <input type="text" name="participant" id="participant" value="{{ participant_q }}" class="form-control" placeholder="nome ou telefone" />
+                    </div>
+                    <div class="col-md-5">
+                        <label for="region_id" class="form-label">Região</label>
+                        <select name="region_id" id="region_id" class="form-select">
+                            <option value="">Todas</option>
+                            {% for reg in regions %}
+                            <option value="{{ reg.id }}" {% if region_id and region_id|int == reg.id %}selected{% endif %}><span class="region-name">{{ reg.nome }}</span></option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">Buscar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6 mb-3">
+        <div class="card h-100">
+            <div class="card-header">QR Codes abertos</div>
+            <div class="card-body">
+                {% if open_qrs %}
+                <ul class="list-group list-group-flush">
+                    {% for qr in open_qrs %}
+                    <li class="list-group-item">
+                        <a href="{{ url_for('admin.qrcode_view', qrcode_id=qr.id) }}">
+                            {{ qr.meeting.event.nome }} - {{ qr.meeting.titulo or qr.meeting.data.strftime('%d/%m/%Y') }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p>Nenhum QR code aberto</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="row">
+            <div class="col-12 mb-3" style="height:200px;">
+                <div class="card h-100">
+                    <div class="card-header">Presenças por reunião</div>
+                    <div class="card-body" style="position:relative;">
+                        <canvas id="attendanceChart" class="w-100 h-100"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12" style="height:200px;">
+                <div class="card h-100">
+                    <div class="card-header">Distribuição por região</div>
+                    <div class="card-body" style="position:relative;">
+                        <canvas id="regionChart" class="w-100 h-100"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        {% if stats %}
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Detalhes de presença</span>
+                <span>
+                    <a class="btn btn-outline-success btn-sm" href="{{ url_for('admin.export_dashboard', fmt='xlsx') }}">Exportar XLSX</a>
+                    <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('admin.export_dashboard', fmt='pdf') }}">Exportar PDF</a>
+                </span>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-striped mb-0">
+                    <thead>
+                        <tr>
+                            <th>Evento</th>
+                            <th>Reunião</th>
+                            <th>Total</th>
+                            <th>Por região</th>
+                            <th>Novos</th>
+                            <th>Faltaram</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for st in stats %}
+                        <tr>
+                            <td>{{ st.event.nome }}</td>
+                            <td>{{ st.meeting.titulo or st.meeting.data.strftime('%d/%m/%Y') }}</td>
+                            <td>{{ st.total }}</td>
+                            <td>
+                                {% for cor, cnt in st.by_region.items() %}
+                                    {{ cor }}: {{ cnt }}<br>
+                                {% endfor %}
+                            </td>
+                            <td>{{ st.new }}</td>
+                            <td>{{ st.missing }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% else %}
+        <p>Sem dados de participação.</p>
+        {% endif %}
+    </div>
+</div>
+
+{% if chart_labels and chart_totals %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const labels = {{ chart_labels|tojson }};
+const dataVals = {{ chart_totals|tojson }};
+const ctx = document.getElementById('attendanceChart').getContext('2d');
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: 'Presenças',
+            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1,
+            data: dataVals
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: { beginAtZero: true }
+        }
+    }
+});
+
+// pie chart
+const regionLabels = {{ region_labels|tojson }};
+const regionVals = {{ region_totals|tojson }};
+const ctx2 = document.getElementById('regionChart').getContext('2d');
+new Chart(ctx2, {
+    type: 'pie',
+    data: {
+        labels: regionLabels,
+        datasets: [{
+            data: regionVals,
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.5)',
+                'rgba(54, 162, 235, 0.5)',
+                'rgba(255, 206, 86, 0.5)',
+                'rgba(75, 192, 192, 0.5)',
+                'rgba(153, 102, 255, 0.5)',
+                'rgba(255, 159, 64, 0.5)'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+</script>
+{% endif %}
+
+{% endblock %}

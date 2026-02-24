@@ -1,0 +1,22 @@
+{% extends 'layout.html' %}
+
+{% block title %}Membros da equipe - {{ team.nome }}{% endblock %}
+
+{% block content %}
+<h1 class="h4 mb-4">Equipe: {{ team.nome }}</h1>
+<p>Reunião: {{ team.meeting.data.strftime('%d/%m/%Y') }}</p>
+<form method="post" class="mt-3">
+    <div class="list-group">
+        {% for user, cnt in users %}
+        <label class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+                <input class="form-check-input me-2" type="checkbox" name="user_id" value="{{ user.id }}" {% if user in team.users %}checked{% endif %}>
+                {{ user.nome }} ({{ user.telefone }})
+            </div>
+            <span class="badge bg-primary rounded-pill">{{ cnt }}</span>
+        </label>
+        {% endfor %}
+    </div>
+    <button type="submit" class="btn btn-success mt-3">Salvar membros</button>
+</form>
+{% endblock %}

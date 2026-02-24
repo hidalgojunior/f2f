@@ -1,0 +1,14 @@
+{% extends 'layout.html' %}
+
+{% block title %}Presença confirmada{% endblock %}
+
+{% block content %}
+<div class="text-center">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="mb-3" style="max-width:120px;" />
+    <h4 class="mb-1">FACE A FACE COM DEUS PARA HOMENS</h4>
+    <h5 class="mb-4">{{ meeting.titulo or meeting.data.strftime('%d/%m/%Y') }}</h5>
+    <h1 class="display-4 mb-4">Presença confirmada</h1>
+    <p>Dados enviados com sucesso.<br>Sua participação foi confirmada.</p>
+    <button onclick="window.close()" class="btn btn-close-window mt-4 px-4 py-2">Fechar</button>
+</div>
+{% endblock %}

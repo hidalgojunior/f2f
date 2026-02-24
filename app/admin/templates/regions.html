@@ -1,0 +1,23 @@
+{% extends 'layout.html' %}
+
+{% block title %}Regiões - Administração{% endblock %}
+
+{% block content %}
+<h1 class="h4 mb-4">Regiões</h1>
+<p><a href="{{ url_for('admin.new_region') }}" class="btn btn-primary">Nova região</a></p>
+<ul class="list-group mt-4">
+    {% for r in regions %}
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+        <span class="region-name mb-0">{{ r.nome }}</span>
+        <div>
+            <a href="{{ url_for('admin.edit_region', region_id=r.id) }}" class="btn btn-sm btn-outline-secondary" aria-label="Editar {{ r.nome }}">✏️</a>
+            <form method="post" action="{{ url_for('admin.delete_region', region_id=r.id) }}" style="display:inline" onsubmit="return confirm('Excluir região?');">
+                <button type="submit" class="btn btn-sm btn-outline-danger" aria-label="Excluir {{ r.nome }}">🗑️</button>
+            </form>
+        </div>
+    </li>
+    {% else %}
+    <li class="list-group-item">Nenhuma região cadastrada</li>
+    {% endfor %}
+</ul>
+{% endblock %}

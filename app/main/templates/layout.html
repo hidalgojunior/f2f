@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Sistema F2F para registrar presenças em reuniões via QR code e comunicar participantes.">
+    <title>{% block title %}F2F - Gerenciamento de presenças{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <!-- Google Fonts: Fredoka -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ENjdO4Dr2bkBIFxQpeoOjWkI7xTn6jvZ6iZ6fK9iRumYz64Sl0sibVcOQVnN" crossorigin="anonymous">
+    <style>
+    body { font-family: 'Fredoka', sans-serif; }
+    .visually-hidden-focusable {
+        position: absolute;
+        left: -10000px;
+        top: auto;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+    }
+    .visually-hidden-focusable:focus,
+    .visually-hidden-focusable:active {
+        position: static;
+        width: auto;
+        height: auto;
+        margin: 0;
+        overflow: visible;
+        clip: auto;
+    }
+    /* use default Bootstrap colors; no custom overrides */
+    /* make nav links darker than bootstrap's default gray for better readability */
+    .navbar-light .nav-link { color: #000 !important; }
+    .navbar-light .nav-link:hover { color: #333 !important; }
+    .region-name { text-transform: uppercase; }
+    @media print {
+        .print-logo { display: block; margin: auto; }
+        nav, footer, .btn, form { display: none !important; }
+    }
+    </style>
+</head>
+<body class="bg-light text-dark" {% if simple %}style="margin:0;height:100vh;overflow:hidden;"{% endif %}>
+{% if not simple %}<a href="#main-content" class="visually-hidden-focusable">Pular para o conteúdo</a>
+<!-- visible logo on print pages -->
+<img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="print-logo mb-3" style="max-width:150px;" />
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm" aria-label="Menu principal">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="/">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" style="height:40px;" class="me-2 align-text-top" />
+      F2F
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="/admin/">Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" href="/admin/events">Eventos</a></li>
+        <li class="nav-item"><a class="nav-link" href="/admin/users">Usuários</a></li>
+        <li class="nav-item"><a class="nav-link" href="/admin/regions">Regiões</a></li>
+        <li class="nav-item"><a class="nav-link" href="/admin/qrcodes">QR Codes</a></li>
+        <li class="nav-item"><a class="nav-link" href="/admin/access-requests">Solicitações</a></li>
+        <li class="nav-item"><a class="nav-link" href="/scan">Escaner</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<main id="main-content" class="container py-4" role="main">
+    {% block content %}{% endblock %}
+</main>
+<!-- Bootstrap JS bundle (includes Popper) -->
+{% else %}
+<main class="d-flex flex-column justify-content-center align-items-center h-100 w-100">
+    {% block content %}{% endblock %}
+</main>
+<!-- Bootstrap JS bundle (includes Popper) -->
+{% endif %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76A2z02tB8aJ0r9gPzf4zYni1NhXQZ5hGTvXBSMfRTCbHysQfD3vR1zpeRMS" crossorigin="anonymous"></script>
+<footer class="bg-light text-center py-3 mt-4">
+    <div class="container"><small>&copy; 2026 F2F</small></div>
+</footer>
+</body>
+</html>

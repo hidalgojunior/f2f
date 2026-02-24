@@ -1,0 +1,27 @@
+{% extends 'layout.html' %}
+
+{% block title %}Novo Evento - Administração{% endblock %}
+
+{% block content %}
+<h1 class="h4 mb-4">Novo Evento</h1>
+<div class="container-fluid">
+<form method="post">
+    <div>
+        <label>Título:<br>
+            <input type="text" name="nome" class="form-control" required>
+        </label>
+    </div>
+    <div>
+        <label>Data inicial:<br>
+            <input type="date" name="data" class="form-control" required>
+        </label>
+    </div>
+    <div>
+        <label>Data final:<br>
+            <input type="date" name="data_final" class="form-control" required>
+        </label>
+    </div>
+    <button type="submit" class="btn btn-primary">Salvar</button>
+</form>
+</div>
+{% endblock %}

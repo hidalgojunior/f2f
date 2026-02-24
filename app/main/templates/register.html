@@ -1,0 +1,52 @@
+{% extends 'layout.html' %}
+
+{% block title %}Cadastro - F2F{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+<h1 class="h4 mb-3">Cadastro de participante</h1>
+<form method="post" class="row g-3 mt-2">
+    <div class="col-12">
+        <label class="form-label">Telefone</label>
+        <input id="phone" type="text" name="telefone" value="{{ telefone }}" readonly class="form-control bg-light">
+    </div>
+    <div class="col-12">
+        <label class="form-label">Nome completo</label>
+        <input id="name" type="text" name="nome" class="form-control" required>
+    </div>
+    <div class="col-12">
+        <label class="form-label">Região</label>
+        <select name="region_id" class="form-select" required>
+            <option value="">-- escolha --</option>
+            {% for reg in regions %}
+                <option value="{{ reg.id }}"><span class="region-name">{{ reg.nome }}</span></option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">Cadastrar e confirmar presença</button>
+    </div>
+</form>
+<script>
+const phoneInput = document.getElementById('phone');
+phoneInput.addEventListener('input', function() {
+    let v = phoneInput.value.replace(/\D/g, '');
+    if (v.length > 11) v = v.slice(0,11);
+    v = v.replace(/^(\d{2})(\d)/g, '($1) $2');
+    v = v.replace(/(\d{5})(\d)/, '$1-$2');
+    phoneInput.value = v;
+});
+
+const nameInput = document.getElementById('name');
+nameInput.addEventListener('input', function() {
+    nameInput.value = nameInput.value.toUpperCase();
+});
+</script>
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ 'success' if category=='success' else 'danger' }} mt-3" role="alert">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends 'layout.html' %}
+
+{% block title %}Novo Usuário{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+<h1 class="h4 mb-4">Cadastrar Novo Usuário</h1>
+<form method="post">
+    <div class="mb-3">
+        <label class="form-label">Telefone</label>
+        <input type="text" name="telefone" value="" class="form-control" required placeholder="(xx) xxxxx-xxxx" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Nome</label>
+        <input type="text" name="nome" value="" class="form-control" required />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Região</label>
+        <select name="region_id" class="form-select">
+            <option value="">-- escolha --</option>
+            {% for reg in regions %}
+                <option value="{{ reg.id }}">{{ reg.nome }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Cor (legado)</label>
+        <input type="text" name="cor" value="" class="form-control" placeholder="cor/nome da região" />
+    </div>
+    <button type="submit" class="btn btn-success">Criar</button>
+</form>
+</div>
+{% endblock %}

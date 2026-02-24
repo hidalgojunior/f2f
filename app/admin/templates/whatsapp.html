@@ -1,0 +1,27 @@
+{% extends 'layout.html' %}
+
+{% block title %}Enviar WhatsApp{% endblock %}
+
+{% block content %}
+<h1 class="h4 mb-4">Enviar mensagem via WhatsApp</h1>
+<form method="post" class="row g-3">
+    <div class="col-md-6">
+        <label for="to" class="form-label">Número de destino</label>
+        <input type="text" name="to" id="to" class="form-control" placeholder="+5511999998888" required />
+        <div class="form-text">Inclua código do país</div>
+    </div>
+    <div class="col-12">
+        <label for="body" class="form-label">Mensagem</label>
+        <textarea name="body" id="body" class="form-control" rows="4" required></textarea>
+    </div>
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">Gerar link</button>
+    </div>
+</form>
+{% if link %}
+<div class="mt-4">
+    <p>Abra este link para enviar a mensagem pelo WhatsApp:</p>
+    <a href="{{ link }}" target="_blank" class="btn btn-success">{{ link }}</a>
+</div>
+{% endif %}
+{% endblock %}

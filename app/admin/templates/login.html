@@ -1,0 +1,33 @@
+{% extends 'layout.html' %}
+
+{% block title %}Login - Administração{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-4">Login de Administrador</h1>
+<div class="container-fluid">
+<form method="post" class="row g-3">
+    <div class="col-12">
+        <label class="form-label">Telefone</label>
+        <input id="phone" type="text" name="telefone" class="form-control" placeholder="(xx) xxxxx-xxxx">
+        <small class="form-text text-muted">Apenas os dígitos serão usados para login.</small>
+    </div>
+    <div class="col-12">
+        <label class="form-label">Senha</label>
+        <input type="password" name="password" class="form-control">
+    </div>
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">Entrar</button>
+    </div>
+</form>
+</div>
+<script>
+const phoneInput = document.getElementById('phone');
+phoneInput.addEventListener('input', function(e) {
+    let v = phoneInput.value.replace(/\D/g, '');
+    if (v.length > 11) v = v.slice(0,11);
+    v = v.replace(/^(\d{2})(\d)/g, '($1) $2');
+    v = v.replace(/(\d{5})(\d)/, '$1-$2');
+    phoneInput.value = v;
+});
+</script>
+{% endblock %}
